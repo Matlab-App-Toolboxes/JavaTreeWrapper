@@ -42,7 +42,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
     % See also: uiextras.jTree.Tree, uiextras.jTree.CheckboxTree,
     %           uiextras.jTree.CheckboxTreeNode
     %
-    
+
     %   Copyright 2012-2015 The MathWorks, Inc.
     %
     % Auth/Revision:
@@ -50,13 +50,13 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
     %   $Author: rjackey $
     %   $Revision: 1245 $  $Date: 2015-11-06 09:19:24 -0500 (Fri, 06 Nov 2015) $
     % ---------------------------------------------------------------------
-    
+
     % DEVELOPER NOTE: Java objects that may be used in a callback must be
     % put on the EDT to make them thread-safe in MATLAB. Otherwise, they
     % could execute along side a MATLAB command and get into a thread-lock
     % situation. Methods of the objects put on the EDT will be executed on
     % the thread-safe EDT.
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Properties
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,27 +66,27 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
         TooltipString %Tooltip text on mouse hover
         UserData %User data to store in the tree node
     end
-    
+
     properties
         Parent %Parent tree node
         UIContextMenu %context menu to show when clicking on this node
     end
-    
+
     properties (SetAccess=protected, GetAccess=public)
         Children = uiextras.jTree.TreeNode.empty(0,1) %Child tree nodes
         Tree = uiextras.jTree.Tree.empty(0,1) %Tree on which this node is attached
     end
-    
+
     % The node needs to be accessible to the nodes also
     properties (SetAccess={?uiextras.jTree.Tree, ?uiextras.jTree.TreeNode},...
             GetAccess={?uiextras.jTree.Tree, ?uiextras.jTree.TreeNode})
         jNode %Java object for tree node
     end
-    
+
     properties (Access = private)
         mParent = uiextras.jTree.TreeNode.empty(0,1);
     end
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Constructor
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -114,30 +114,30 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             % Examples:
             %           nObj = TreeNode()
             %
-            
+
             % Add the custom java paths
             uiextras.jTree.loadJavaCustomizations();
-            
+
             % Create a tree node for this element
             nObj.jNode = handle(javaObjectEDT('UIExtrasTree.TreeNode'));
-            
+
             % Add properties to the java object for MATLAB data
             schema.prop(nObj.jNode,'Value','MATLAB array');
             schema.prop(nObj.jNode,'TreeNode','MATLAB array');
             schema.prop(nObj.jNode,'UserData','MATLAB array');
-            
+
             % Add a reference to this object
             nObj.jNode.TreeNode = nObj;
-            
+
             % Set user-supplied property values
             if ~isempty(varargin)
                 set(nObj,varargin{:});
             end
-            
+
         end
     end %methods
-    
-    
+
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Destructor
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -149,8 +149,8 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             delete(nObj.jNode);
         end
     end %methods
-    
-    
+
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Public Methods
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,7 +158,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
     % objects of a class. They may be stored within the classdef file or as
     % separate files in a @classname folder.
     methods
-        
+
         function nObjCopy = copy(nObj,NewParent)
             % copy - Copy a TreeNode object
             % -------------------------------------------------------------------------
@@ -176,10 +176,10 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             %           nObjCopy - copy of TreeNode object
             %
             for idx = 1:numel(nObj)
-                
+
                 % Allow subclasses to instantiate copies of the same type
                 fNodeConstructor = str2func(class(nObj(idx)));
-                
+
                 % Create a new node, and copy properties
                 nObjCopy(idx) = fNodeConstructor(...
                     'Name',nObj(idx).Name,...
@@ -187,16 +187,16 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
                     'TooltipString',nObj(idx).TooltipString,...
                     'UserData',nObj(idx).UserData,...
                     'UIContextMenu',nObj(idx).UIContextMenu); %#ok<AGROW>
-                
+
                 % Copy the icon's java object
                 jIcon = getIcon(nObj(idx).jNode);
                 setIcon(nObjCopy(idx).jNode,jIcon);
-                
+
                 % Set the parent, if specified
                 if nargin>1
                     set(nObjCopy(idx),'Parent',NewParent);
                 end
-                
+
                 % Recursively copy children and assign new parent
                 % Need to loop in case children are of heterogeneous type
                 ChildNodes = nObj(idx).Children;
@@ -205,7 +205,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
                 end
             end
         end
-        
+
         function collapse(nObj)
             % collapse - Collapse a TreeNode within a tree
             % -------------------------------------------------------------------------
@@ -226,7 +226,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
                 end
             end
         end %function collapse()
-        
+
         function expand(nObj)
             % expand - Expands a TreeNode within a tree
             % -------------------------------------------------------------------------
@@ -247,7 +247,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
                 end
             end
         end %function expand()
-        
+
         function tf = isAncestor(nObj1,nObj2)
             % isAncestor - checks if another node is an ancestor
             % -------------------------------------------------------------------------
@@ -265,7 +265,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             %
             validateattributes(nObj1,{'uiextras.jTree.TreeNode'},{'vector'})
             validateattributes(nObj2,{'uiextras.jTree.TreeNode'},{'vector'})
-            
+
             tf = false(size(nObj1));
             for idx = 1:numel(nObj1)
                 while ~tf(idx) && ~isempty(nObj1(idx).Parent)
@@ -273,9 +273,9 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
                     nObj1(idx) = nObj1(idx).Parent;
                 end
             end
-            
+
         end %function isAncestor()
-        
+
         function tf = isDescendant(nObj1,nObj2)
             % isDescendant - checks if another node is a descendant
             % -------------------------------------------------------------------------
@@ -291,11 +291,11 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             % Outputs:
             %           tf - logical result
             %
-            
+
             tf = isAncestor(nObj2,nObj1);
-            
+
         end %function isDescendant()
-        
+
         function setIcon(nObj,icon)
             % setIcon - Set icon of TreeNode
             % -------------------------------------------------------------------------
@@ -315,20 +315,20 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             %   t = uiextras.jTree.Tree;
             %   n = uiextras.jTree.TreeNode('Name','Node1','Parent',t);
             %   setIcon(n,which('matlabicon.gif'));
-            
+
             validateattributes(icon,{'char'},{})
-            
+
             % Create a java icon
             IconData = javaObjectEDT('javax.swing.ImageIcon',icon);
-            
+
             % Update the icon in the node
             setIcon(nObj.jNode, IconData);
-            
+
             % Notify the model about the update
             nodeChanged(nObj.Tree, nObj)
-            
+
         end %function setIcon()
-        
+
         function s = getJavaObjects(nObj)
             % getJavaObjects - Returns underlying java objects
             % -------------------------------------------------------------------------
@@ -344,58 +344,58 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             % Outputs:
             %           s - struct of Java objects
             %
-            
+
             s = struct('jNode',nObj.jNode);
         end
-        
+
     end %public methods
-    
-    
+
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Protected Methods
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     methods (Access = protected)
-        
+
         function newParent = updateParent(nObj,newParent,index)
             if nargin < 3
                 index = [];
             end
-            
+
             % Is the new parent empty?
             if isempty(newParent)
-                
+
                 % Always make the parent an empty TreeNode, in case empty
                 % [] was passed in
                 newParent = uiextras.jTree.TreeNode.empty(0,1);
-                
+
                 % Is there an old parent to clean up?
                 if ~isempty(nObj.Parent)
                     ChildIdx = find(nObj.Parent.Children == nObj,1);
                     nObj.Parent.Children(ChildIdx) = [];
                     nObj.Tree.removeNode(nObj, nObj.Parent);
                 end
-                
+
                 % Update the reference to the tree in the hierarchy
                 EmptyTree = uiextras.jTree.Tree.empty(0,1);
                 updateTreeReference(nObj, EmptyTree)
-                
+
             else % A new parent was provided
-                
+
                 % If new parent is a Tree, parent is the Root
                 if isa(newParent,'uiextras.jTree.Tree')
                     newParent = newParent.Root;
                 end
-                
+
                 % Is there an old parent to clean up?
                 if ~isempty(nObj.Parent)
                     ChildIdx = find(nObj.Parent.Children == nObj,1);
                     nObj.Parent.Children(ChildIdx) = [];
                     nObj.Tree.removeNode(nObj, nObj.Parent);
                 end
-                
+
                 % Update the reference to the tree in the hierarchy
                 updateTreeReference(nObj,newParent.Tree)
-                
+
                 % Update the list of children in the parent
                 if isempty(index)
                     ChildIdx = numel(newParent.Children) + 1;
@@ -404,14 +404,14 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
                 end
                 c = newParent.Children;
                 newParent.Children = [c(1:ChildIdx-1) nObj c(ChildIdx:end)];
-                
+
                 % Add this node to the parent node
                 nObj.Tree.insertNode(nObj, newParent, ChildIdx);
-                
-                
-                
+
+
+
             end %if isempty(newParent)
-            
+
             % This internal function updates the tree reference in the
             % hierarchy
             function updateTreeReference(nObj,Tree)
@@ -422,20 +422,20 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
                     end
                 end
             end
-            
+
         end %function updateParent()
-        
+
     end %protected methods
-    
-    
-    
+
+
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Get and Set Methods
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Get and set methods customize the behavior that occurs when code gets
     % or sets a property value.
     methods
-        
+
         % Name
         function value = get.Name(nObj)
             value = nObj.jNode.getUserObject();
@@ -445,7 +445,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             nObj.jNode.setUserObject(value);
             nodeChanged(nObj.Tree,nObj);
         end
-        
+
         % Value
         function value = get.Value(nObj)
             value = nObj.jNode.Value;
@@ -453,7 +453,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
         function set.Value(nObj,value)
             nObj.jNode.Value = value;
         end
-        
+
         % TooltipString
         function value = get.TooltipString(nObj)
             value = char(nObj.jNode.getTooltipString());
@@ -466,7 +466,7 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             validateattributes(value,{'char'},{});
             nObj.jNode.setTooltipString(java.lang.String(value));
         end
-        
+
         % UserData
         function value = get.UserData(nObj)
             value = nObj.jNode.UserData;
@@ -474,19 +474,19 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
         function set.UserData(nObj,value)
             nObj.jNode.UserData = value;
         end
-        
+
         % Parent
         function p = get.Parent(nObj)
             p = nObj.mParent;
         end
-        
+
         function set.Parent(nObj,newParent)
             % Update the parent/child relationship
             newParent = updateParent(nObj,newParent);
             % Set the parent value
             nObj.mParent = newParent; %#ok<MCSUP>
         end
-        
+
         function setParent(nObj,newParent,idx)
             if nargin < 3
                 idx = [];
@@ -496,12 +496,12 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
             % Set the parent value
             nObj.mParent = newParent;
         end
-        
+
         % UIContextMenu
         function set.UIContextMenu(tObj,value)
             tObj.UIContextMenu = value;
         end
-        
+
     end %get/set methods
-    
+
 end %classdef
