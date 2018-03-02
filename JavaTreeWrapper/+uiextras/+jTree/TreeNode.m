@@ -143,10 +143,11 @@ classdef TreeNode < hgsetget & matlab.mixin.Heterogeneous
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     methods
         function delete(nObj)
-            delete(nObj.Children(isvalid(nObj.Children)))
-            nObj.Children(:) = [];
             nObj.Parent(:) = [];
             delete(nObj.jNode);
+            ChildNodes = nObj.Children(isvalid(nObj.Children));
+            nObj.Children(:) = [];
+            delete(ChildNodes(:)); % Recursively destruct children at end
         end
     end %methods
 
